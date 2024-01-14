@@ -17,6 +17,7 @@ class _SongDetailScreenState extends State<SongDetailScreen>
   late AnimationController _controller;
   late bool isPlaying;
   late AudioPlayer _audioPlayer;
+  GyroscopeEvent? _gyroData;
 
   @override
   void initState() {
@@ -28,13 +29,16 @@ class _SongDetailScreenState extends State<SongDetailScreen>
       duration: Duration(milliseconds: 300),
     );
     isPlaying = false;
+
+    gyroscopeEvents.listen((GyroscopeEvent event) {
+      setState(() {
+        _gyroData = event;
+        _updatePlaybackSpeed();
+      });
+    });
   }
 
   Future<void> _initializePlayer() async {
-    // 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'
-    print("+++++++++++++++++++++++++++++++");
-    print(widget.song.previews[0]);
-    print("+++++++++++++++++++++++++++++++");
     await _audioPlayer.setUrl(widget.song.previews[0]);
   }
 
@@ -46,6 +50,14 @@ class _SongDetailScreenState extends State<SongDetailScreen>
     }
   }
 
+  void _updatePlaybackSpeed() {
+    // Adjust the playback speed based on the gyroscope data
+    if (_gyroData != null) {
+      double gyroSpeed = _gyroData!.x.abs() + _gyroData!.y.abs() + _gyroData!.z.abs();
+      double newSpeed = 1.0 + (gyroSpeed * 2.0); // Modify this factor as needed
+      _audioPlayer.setSpeed(newSpeed);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,12 +84,6 @@ class _SongDetailScreenState extends State<SongDetailScreen>
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              // Text(
-              //   "Previews: ${widget.song.previews.toString()}",
-              //   style: const TextStyle(
-              //     fontWeight: FontWeight.bold,
-              //   ),
-              // ),
               SizedBox(height: 16),
               ElevatedButton.icon(
                 onPressed: () {
@@ -113,6 +119,7 @@ class _SongDetailScreenState extends State<SongDetailScreen>
   @override
   void dispose() {
     _controller.dispose();
+    _audioPlayer.dispose();
     super.dispose();
   }
 }
