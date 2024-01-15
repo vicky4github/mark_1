@@ -51,10 +51,9 @@ class _SongDetailScreenState extends State<SongDetailScreen>
   }
 
   void _updatePlaybackSpeed() {
-    // Adjust the playback speed based on the gyroscope data
     if (_gyroData != null) {
       double gyroSpeed = _gyroData!.x.abs() + _gyroData!.y.abs() + _gyroData!.z.abs();
-      double newSpeed = 1.0 + (gyroSpeed * 2.0); // Modify this factor as needed
+      double newSpeed = 1.0 + (gyroSpeed * 1.2); 
       _audioPlayer.setSpeed(newSpeed);
     }
   }
